@@ -24,17 +24,22 @@ const login = async (req, res, next) => {
   await passport.authenticate('local-login',{session: false},  function(err, user, info) {
     let result;
     if (err) { 
+        console.log('err');
         result = next(err) 
     } else if (!user) {
+      console.log('!user');
         result = res.json({
-            message: info.message
+            message: info.message,
+            isSuccessfully: info.success
         })
     } else {
       const token = tokenMiddleware.generateToken(user.id);
-      res.cookie('token', token);
-      result = res.json({
+      
+      result = res.cookie('token', token).json({
+          token: token,
           user: user.returnUserInfo(),
-          message: info.message
+          message: info.message,
+          isSuccessfully: info.success
       })
     }
     return result;
@@ -47,14 +52,14 @@ function getPrivateInfo(req, res) {
     if (!user) {
       return res.sendStatus(404);
     }
-
     return res.json({user: user.returnUserInfo()});
   });
-
 }
 
 function logout(req, res) {
-
+  //console.log("logout");
+  res.clearCookie('token');
+  res.status(204).send();
 }
 
 module.exports = {

@@ -42,8 +42,8 @@ passport.use('local-login', new LocalStrategy({
       const user = await User.findOne({'email': email});
 
       if (!user || !user.validatePassword(password))
-        return done(null, false,  { message: 'Email or password is invalid'});
-      return done(null, user, { message: 'Success' });
+        return done(null, false,  {success: false, message: 'Email or password is invalid'});
+      return done(null, user, {success: true, message: 'Success' });
 
     } catch (error) {
       return done(error, false, {success: false, message: 'Authentication failed.'})

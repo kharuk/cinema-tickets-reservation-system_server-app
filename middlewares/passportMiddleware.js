@@ -9,7 +9,8 @@ configAuth = {
 }
 
 const getTokenFromCookies = (req) => {
-  const token = req.cookies['token'];
+  //const token = req.cookies['token'];
+  const token = req.headers['x-access-token'] || req.headers['authorization'];
   console.log('token from cookies', token);
   return token || null;
 };
