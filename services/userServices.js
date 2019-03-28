@@ -9,11 +9,14 @@ const register = async (req, res, next) => {
       result =  next(err) 
     } else if (!user) { 
       result = res.json({
-          message: info.message
+          message: info.message,
+          isSuccessfully: info.success
       })
     } else {
       result = res.json({
-          message: info.message
+          message: info.message,
+          //user: user.returnUserInfo(),
+          isSuccessfully: info.success
       })
     }
     return result;

@@ -11,7 +11,7 @@ passport.use('local-signup', new LocalStrategy({
     try {
       const {firstName, lastName, location, gender, /* email,  password*/} = req.body;
       const user = await User.findOne({'email': email});
-      if (user) return done(null, false, {message: 'That email is already taken.'});
+      if (user) return done(null, false, {success: false, message: 'That email is already taken.'});
 
       const newUser = new User();
       newUser.firstName = firstName;
@@ -22,9 +22,9 @@ passport.use('local-signup', new LocalStrategy({
       newUser.gender = gender;
       const save = await newUser.save();
       if (!save) {
-        return done(null, newUser, { message: 'Error with connection' });
+        return done(null, newUser, {success: false, message: 'Error with connection' });
       } else {
-        return done(null, newUser, { message: 'Saved', user: newUser.returnUserInfo()});
+        return done(null, newUser, {success: true, message: 'Saved'});
       }
     } catch (error) {
       console.log(error);
