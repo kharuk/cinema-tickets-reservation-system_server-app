@@ -1,12 +1,14 @@
 const userServices = require('../services/userServices');
 
 
-function login(req, res, next) {
-  userServices.login(req, res, next);  
+async function login(req, res, next) {
+  const response = await userServices.login(req.body, res, next); 
+  res.json(response); 
 }
 
-function register(req, res, next) {
-  userServices.register(req, res, next);  
+async function register(req, res, next) {
+  const response = await userServices.register(req.body, res, next);  
+  res.json(response); 
 }
 
 function logout(req, res) {
