@@ -1,43 +1,34 @@
-const passport = require('passport');
-const jwt = require('express-jwt');
-const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/userModel');
+const expressJwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
+
+configAuth = {
+  JWT: {
+  secret: 'qwerty',
+  live: 360000000
+  }
+}
 
 const getTokenFromCookies = (req) => {
   const token = req.cookies['token'];
+  console.log('token from cookies', token);
   return token || null;
 };
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: 'email',
-      passwordField: 'password'
-    },
-    (email, password, done) => {
-      User.findOne({email})
-        .then((user) => {
-          if (!user || !user.validatePassword(password)) {
-            return done(null, false, {error: { message: 'Email or password is invalid'}});
-          }
-
-          return done(null, user);
-        })
-        .catch(done);
-    }
-  )
-);
+const generateToken = (id) => {
+  const token = jwt.sign(
+  {
+    id,
+    exp: Math.floor(Date.now() / 1000) + parseInt(configAuth.JWT.live)
+  },
+  configAuth.JWT.secret);
+  return token
+};
 
 module.exports = {
-  required: jwt({
-    secret: 'secret',
+  required: expressJwt({
+    secret: configAuth.JWT.secret,
     userProperty: 'user',
     getToken: getTokenFromCookies
   }),
-  optional: jwt({
-    secret: 'secret',
-    userProperty: 'user',
-    getToken: getTokenFromCookies,
-    credentialsRequired: false
-  })
+  generateToken
 };

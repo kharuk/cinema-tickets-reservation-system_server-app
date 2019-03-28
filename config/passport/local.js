@@ -2,70 +2,50 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('../../models/userModel');
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user);
-  });
-});
-
 passport.use('local-signup', new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
-    passReqToCallback: true,
+    passReqToCallback: true
   },
-  async (req, email, password, done) => {
+  async (req, email, password, done) => { 
     try {
+      const {firstName, lastName, location, gender, /* email,  password*/} = req.body;
       const user = await User.findOne({'email': email});
+      if (user) return done(null, false, {message: 'That email is already taken.'});
 
-      if (user) {
-        return done(null, false, { message: `Email ${email} is already exist` });
+      const newUser = new User();
+      newUser.firstName = firstName;
+      newUser.lastName = lastName;
+      newUser.email = email;
+      newUser.hashPassword =newUser.generateHash(password);
+      newUser.location = location;
+      newUser.gender = gender;
+      const save = await newUser.save();
+      if (!save) {
+        return done(null, newUser, { message: 'Error with connection' });
       } else {
-        const newUser = new User();
-        // I need to add validation
-        const {firstName, lastName, location, gender} = req.body;
-        newUser = {
-          firstName,
-          lastName,
-          email,
-          hashPassword: newUser.generateHash(password),
-          location,
-          gender
-        }
-       // newUser.email = email;
-        //newUser.password = newUser.generateHash(password);
-        const save = await newUser.save();
-        if (!save) {
-          return done(null, newUser, { message: 'Error with connection' })
-        } else {
-          return done(null, newUser, { message: ''})
-        }
-
+        return done(null, newUser, { message: 'Saved', user: newUser.returnUserInfo()});
       }
     } catch (error) {
-      done(error, false,  { message: 'Internal error' })
+      console.log(error);
+      return done(null, false, {success: false, message: 'Registration failed.'});
     }
   }));
 
+
 passport.use('local-login', new LocalStrategy({
     usernameField: 'email',
-    passwordField: 'password',
-    passReqToCallback: true,
+    passwordField: 'password'
   },
-  async (req, email, password, done) => {
+  async (email, password, done) => {
     try {
       const user = await User.findOne({'email': email});
 
-      if (!user)
-        return done(null, false,  { message: `User with email ${email} is not exist` });
-      if (!user.validatePassword(password))
-        return done(null, false, { message: `Wrong password for ${email}` });
-      return done(null, user, { name: user.firstName, message: 'Success' });
+      if (!user || !user.validatePassword(password))
+        return done(null, false,  { message: 'Email or password is invalid'});
+      return done(null, user, { message: 'Success' });
 
     } catch (error) {
-      done(error, false, { message: 'Internal error' })
+      return done(error, false, {success: false, message: 'Authentication failed.'})
     }
   }));

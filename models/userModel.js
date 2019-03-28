@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 let bcrypt = require('bcrypt-nodejs');
-const saltRounds = 10;
-const jwt = require('jsonwebtoken');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -38,11 +36,6 @@ const UserSchema = new Schema({
   },
 });
 
-/* UserSchema.pre('save', function(next) {
-  this.hashPassword = bcrypt.hashSync(this.hashPassword, saltRounds);
-    next();
-  }
-); */
 UserSchema.methods.generateHash = function(password) {
   return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
@@ -50,22 +43,6 @@ UserSchema.methods.generateHash = function(password) {
 UserSchema.methods.validatePassword = function(password) {
   return bcrypt.compareSync(password, this.hashPassword);
 };
-
-/* UserSchema.methods.generateJWT = function() {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
-
-  return jwt.sign(
-    {
-      email: this.email,
-      role: this.accountType,
-      id: this._id,
-      exp: parseInt(expirationDate.getTime() / 1000, 10)
-    },
-    'secret'
-  );
-}; */
 
 UserSchema.methods.returnUserInfo = function() {
   return {
