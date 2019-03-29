@@ -20,7 +20,6 @@ const register = async (req, res, next) => {
     } else {
       result = res.json({
           message: info.message,
-          //user: user.returnUserInfo(),
           isSuccessfully: info.success
       })
     }
@@ -47,7 +46,7 @@ const login = async (req, res, next) => {
       const token = tokenMiddleware.generateToken(user.id);
       
       result = res.cookie('token', token).json({
-          //token: token,
+          token: token,
           user: user.returnUserInfo(),
           message: info.message,
           isSuccessfully: info.success
