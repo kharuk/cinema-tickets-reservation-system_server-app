@@ -22,7 +22,7 @@ passport.use('local-signup', new LocalStrategy({
       newUser.gender = gender;
       const save = await newUser.save();
       if (!save) {
-        return done(null, newUser, {success: false, message: 'Error with connection' });
+        return done(null, false, {success: false, message: 'Error with connection' });
       } else {
         return done(null, newUser, {success: true, message: 'Saved'});
       }

@@ -6,6 +6,11 @@ const register = async (req, res, next) => {
   await passport.authenticate('local-signup', {session: false},  function(err, user, info) {
     let result;
     if (err) { 
+      res.status(400).send({
+        error: {
+          message: err
+        }
+      });
       result =  next(err) 
     } else if (!user) { 
       result = res.json({
@@ -27,10 +32,13 @@ const login = async (req, res, next) => {
   await passport.authenticate('local-login',{session: false},  function(err, user, info) {
     let result;
     if (err) { 
-        console.log('err');
+        res.status(400).send({
+          error: {
+            message: err
+          }
+        });
         result = next(err) 
     } else if (!user) {
-      console.log('!user');
         result = res.json({
             message: info.message,
             isSuccessfully: info.success
@@ -39,7 +47,7 @@ const login = async (req, res, next) => {
       const token = tokenMiddleware.generateToken(user.id);
       
       result = res.cookie('token', token).json({
-          token: token,
+          //token: token,
           user: user.returnUserInfo(),
           message: info.message,
           isSuccessfully: info.success
@@ -62,7 +70,11 @@ function getPrivateInfo(req, res) {
 function logout(req, res) {
   //console.log("logout");
   res.clearCookie('token');
-  res.status(204).send();
+  res.status(204).send({
+    error: {
+      message: 'Unable to logout'
+    }
+  });
 }
 
 module.exports = {
