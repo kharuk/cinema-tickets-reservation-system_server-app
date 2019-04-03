@@ -1,4 +1,3 @@
-//const User = require('../models/userModel');
 const _ = require('lodash');
 const films = require('../models/data.js');
 function getAllFilms(req, res) {

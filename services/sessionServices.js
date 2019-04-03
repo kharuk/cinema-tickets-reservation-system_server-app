@@ -20,27 +20,9 @@ function getSessionById(req, res) {
     }
   }
 }
-/* function getFilm(req, res) {
-   
-}
 
-function createFilm(req, res) {
-   
-}
-
-function updateFilm(req, res) {
-    
-}
-
-function deleteFilm(req, res) {
-   
-} */
 
 module.exports = {
   getAllSessions,
   getSessionById
-/*   getFilm,
-  createFilm,
-  updateFilm,
-  deleteFilm */
 };
