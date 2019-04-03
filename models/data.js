@@ -13,7 +13,7 @@ module.exports = [
         "location": "minsk",
         "cinema": {
           "cinema_id": "1",
-          "location": "vitebsk",
+          "location": "minsk",
           "cinemaName": "kiev",
           "seats": [
             {
@@ -39,6 +39,20 @@ module.exports = [
               "row": 1,
               "column": 0,
               "type": "default"
+            },
+            {
+              "id": 6,
+              "row": 0,
+              "column": 4,
+              "type": "default",
+              "selectionDatetime": "12.04.2018"
+            },
+            {
+              "id": 6,
+              "row": 0,
+              "column": 5,
+              "type": "default",
+              "selectionDatetime": "12.04.2018"
             },
             {
               "id": 5,
@@ -82,7 +96,7 @@ module.exports = [
             "duration": "2 hours"
           }
         },
-        "date": new Date('2019-04-02 23:23:13'),
+        "date": new Date('2019-04-03 20:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -147,6 +161,24 @@ module.exports = [
             "id": 6,
             "row": 0,
             "column": 3,
+            "chosen": false,
+            "booked": false,
+            "type": "default",
+            "selectionDatetime": "12.04.2018"
+          },
+          {
+            "id": 6,
+            "row": 0,
+            "column": 4,
+            "chosen": false,
+            "booked": false,
+            "type": "default",
+            "selectionDatetime": "12.04.2018"
+          },
+          {
+            "id": 6,
+            "row": 0,
+            "column": 5,
             "chosen": false,
             "booked": false,
             "type": "default",
@@ -272,7 +304,7 @@ module.exports = [
             "duration": "2 hours"
           }
         },
-        "date": new Date('2019-04-01 23:23:13'),
+        "date": new Date('2019-04-03 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -462,7 +494,7 @@ module.exports = [
             "duration": "2 hours"
           }
         },
-        "date": new Date('2019-04-02 23:23:13'),
+        "date": new Date('2019-04-03 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -665,7 +697,7 @@ module.exports = [
             "release_date": "2019-01-03"
           },
         },
-        "date": new Date('2019-04-02 23:23:13'),
+        "date": new Date('2019-04-03 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -847,7 +879,7 @@ module.exports = [
           "seatsAvailable": "9"
         },
         "film" : {
-          "film_id": "1",
+          "film_id": "2",
           'film_info': {
             "filmName": "How to Train Your Dragon: The Hidden World",
             "description": "As Hiccup fulfills his dream of creating a peaceful dragon utopia, Toothless’ discovery of an untamed, elusive mate draws the Night Fury away. When danger mounts at home and Hiccup’s reign as village chief is tested, both dragon and rider must make impossible decisions to save their kind.",
@@ -856,7 +888,7 @@ module.exports = [
             "release_date": "2019-01-03"
           },
         },
-        "date": new Date('2019-04-02 23:23:13'),
+        "date": new Date('2019-04-03 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -1038,7 +1070,7 @@ module.exports = [
           "seatsAvailable": "9"
         },
         "film" : {
-          "film_id": "1",
+          "film_id": "2",
           'film_info': {
             "filmName": "How to Train Your Dragon: The Hidden World",
             "description": "As Hiccup fulfills his dream of creating a peaceful dragon utopia, Toothless’ discovery of an untamed, elusive mate draws the Night Fury away. When danger mounts at home and Hiccup’s reign as village chief is tested, both dragon and rider must make impossible decisions to save their kind.",
@@ -1047,7 +1079,7 @@ module.exports = [
             "release_date": "2019-01-03"
           },
         },
-        "date": new Date('2019-04-02 23:23:13'),
+        "date": new Date('2019-04-03 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
