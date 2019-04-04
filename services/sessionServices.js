@@ -8,11 +8,13 @@ function getAllSessions(req, res) {
 
 function getSessionById(req, res) {
   if (req.params.id) {
-    const session =  _(sessions)
+    let session =  _(sessions)
       .map('sessions')
       .flatten()
       .filter({id: req.params.id})
+      .value()
     if (session) {
+        session = _.head(session);
         res.json({session, isSuccessfully: true});
         return;
     } else {

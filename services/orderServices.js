@@ -3,9 +3,8 @@ const Order = require('../models/orderModel');
 
 
 function getAllOrders(req, res) {
-  console.log('id',req.headers.id);
   Order.find({
-    user_id: req.headers.id
+    user_id: req.user._id
   })
   .sort({date: 'desc'})
   .exec((err, result) => {
@@ -20,7 +19,6 @@ function getAllOrders(req, res) {
 }
 
 function createOrder(req, res) {
-  console.log('body', req.body);
   Order.create(req.body, function (err, result) {
     if (!err) {
       res.json({result, isSuccessfully: true});
