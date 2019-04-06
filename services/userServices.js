@@ -44,8 +44,7 @@ const login = async (req, res, next) => {
         })
     } else {
       const token = tokenMiddleware.generateToken(user.id);
-      
-      result = res.cookie('token', token).json({
+      result = res.json({
           token: token,
           user: user.returnUserInfo(),
           message: info.message,
@@ -67,8 +66,6 @@ function getPrivateInfo(req, res) {
 }
 
 function logout(req, res) {
-  //console.log("logout");
-  res.clearCookie('token');
   res.status(204).send({
     error: {
       message: 'Unable to logout'

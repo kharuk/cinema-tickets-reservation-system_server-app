@@ -48,7 +48,11 @@ UserSchema.methods.returnUserInfo = function() {
   return {
     _id: this._id,
     email: this.email,
-    role: this.accountType
+    role: this.accountType,
+    location: this.location,
+    firstName: this.firstName,
+    lastName: this.lastName,
+    gender: this.gender
   };
 };
 module.exports = mongoose.model('User', UserSchema);
