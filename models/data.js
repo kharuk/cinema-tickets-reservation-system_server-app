@@ -96,7 +96,7 @@ module.exports = [
             "duration": "2 hours"
           }
         },
-        "date": new Date('2019-04-05 20:23:13'),
+        "date": new Date('2019-04-06 20:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -304,7 +304,7 @@ module.exports = [
             "duration": "2 hours"
           }
         },
-        "date": new Date('2019-04-05 23:23:13'),
+        "date": new Date('2019-04-06 21:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -318,7 +318,7 @@ module.exports = [
             "coffee": 2
           }
         },
-        "seatsAvailable": "9",
+        "seatsAvailable": 4,
         "sessionSeats": [
           {
             "id": 1,
@@ -494,7 +494,7 @@ module.exports = [
             "duration": "2 hours"
           }
         },
-        "date": new Date('2019-04-05 23:23:13'),
+        "date": new Date('2019-04-06 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -697,7 +697,7 @@ module.exports = [
             "release_date": "2019-01-03"
           },
         },
-        "date": new Date('2019-04-05 23:23:13'),
+        "date": new Date('2019-04-06 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -888,7 +888,7 @@ module.exports = [
             "release_date": "2019-01-03"
           },
         },
-        "date": new Date('2019-04-05 23:23:13'),
+        "date": new Date('2019-04-06 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,
@@ -1079,7 +1079,7 @@ module.exports = [
             "release_date": "2019-01-03"
           },
         },
-        "date": new Date('2019-04-05 23:23:13'),
+        "date": new Date('2019-04-06 23:23:13'),
         "session_info" : {
           "seat_type": {
             "vip": 15,

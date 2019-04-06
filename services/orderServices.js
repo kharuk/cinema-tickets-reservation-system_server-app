@@ -19,6 +19,7 @@ function getAllOrders(req, res) {
 }
 
 function createOrder(req, res) {
+  req.body.user_id = req.user._id;
   Order.create(req.body, function (err, result) {
     if (!err) {
       res.json({result, isSuccessfully: true});
