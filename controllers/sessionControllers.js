@@ -8,8 +8,13 @@ function getSessionById(req, res) {
   sessionServices.getSessionById(req, res);
 }
 
+function createSession(req, res) {
+  sessionServices.createSession(req, res);
+}
+
 
 module.exports = {
   getAllSessions,
-  getSessionById
+  getSessionById,
+  createSession
 };
