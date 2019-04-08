@@ -2,42 +2,40 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const SessionSchema = new Schema({
-/*     cinema: {
-      type: Schema.Types.ObjectId,
-      ref: 'Cinema',
-      required: true,
-    },
- */   film: {
+  film: {
       type: Schema.Types.ObjectId,
       ref: 'Film',
       required: true,
- },/*
-    date: {
-      type: Date,
+  },
+  cinema: {
+    type: Schema.Types.ObjectId,
+    ref: 'Cinema',
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: true
+  },
+  session_info: {
+    seat_type: {
+      type: Object,
       required: true
     },
-    sessionInfo: {
-      seat_type: {
-        type: Object,
-        require: true
-      },
-      extra_services: {
-        type: Object,
-        require: true
-      }
-    }, */
-    seatsAvailable: {
-      type: Number,
+    extra_services: {
+      type: Object,
       required: true
-    }, 
-  /*   sessionSeats: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Seat',
-        //required: true,
-      }
-    ] */
-  },
+    }
+  }, 
+  seatsAvailable: {
+    type: Number,
+    required: true
+  }, 
+  sessionSeats: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Seat',
+    required: true,
+  }]
+},
   {
     timestamps: true
   }

@@ -3,12 +3,12 @@ const Schema = mongoose.Schema;
 const Session = require('../models/sessionModel');
 
 const FilmSchema = new Schema({
-    filmName: {
-      type: String,
-      trim: true,
-      required: true
-    },
     film_info: {
+      filmName: {
+        type: String,
+        trim: true,
+        required: true
+      },
       description: {
         type: String,
         trim: true,

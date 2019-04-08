@@ -12,24 +12,31 @@ const SeatSchema = new Schema({
   },
   chosen: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   booked: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   type: {
     type: String,
     required: true
   },
   selectionDatetime: {
-    type: Data,
-    //default: new Data(),
+    type: Date,
+    //default: new Date(),
    // required: true
+  },
+  cinema_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'Cinema',
+    required: true,
   }
 },
 {
-  timestamps
+  timestamps: true
 });
 
 

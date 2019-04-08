@@ -1,15 +1,36 @@
-//const User = require('../models/userModel');
 const _ = require('lodash');
-const sessions = require('../models/data.js');
+//const sessions = require('../models/data.js');
 const Session = require('../models/sessionModel');
 const Film = require('../models/filmModel');
+const Cinema = require('../models/cinemaModel');
 
 function getAllSessions(req, res) {
-  res.json({sessions, isSuccessfully: true});
+//  res.json({sessions, isSuccessfully: true});
+
+  Film.find({})
+ .populate({
+   path: 'sessions',
+   populate: { path: 'film', select: 'film_info'}
+ }
+ )
+ .populate({
+   path: 'sessions',
+   populate: { path: 'cinema'}
+ }
+ )
+ .exec( function(err, sessions) {
+   if (!err) {
+     res.json({sessions, isSuccessfully: true});
+     return;
+   } else {
+     console.log(err);
+     res.status(500).send(err)
+   } 
+  })  
 }
 
 function getSessionById(req, res) {
-  if (req.params.id) {
+  /* if (req.params.id) {
     let session =  _(sessions)
       .map('sessions')
       .flatten()
@@ -22,32 +43,59 @@ function getSessionById(req, res) {
     } else {
       res.status(404).json({isSuccessfully: false});
     }
-  }
+  } */
+
+  Session.findById(req.params.id)
+  .populate({ path: 'film', select: 'film_info'})
+  .populate({ path: 'sessionSeats'})
+  .populate({
+    path: 'cinema',
+    populate: { path: 'seats'}
+  })
+  .exec( function(err, result) {
+    if (!err) {
+      res.json({session: result, isSuccessfully: true});
+      return;
+    } else {
+      console.log(err);
+      res.status(500).send(err)
+    } 
+  }) 
+
 }
 
 function createSession(req, res) {
-  Session.create(req.body, function (err, result) {
+  Cinema.findById({_id: req.body.cinema}, function (err, cinema) {
     if (!err) {
-      Film.findOneAndUpdate({_id: result.film}, {$push: {sessions: result._id}}, {new:true})
-      .then((docs)=>{
-        if(docs) {
-          console.log({success:true,data:docs});
-        } else {
-          console.log({success:false,data:"no such user exist"});
-        }
-      }).catch((err)=>{
+      const newSession = new Session();
+      newSession.film = req.body.film;
+      newSession.seatsAvailable = cinema.seatsAvailable;
+      newSession.cinema = req.body.cinema;
+      newSession.date = req.body.date;
+      newSession.session_info = req.body.session_info;
+      newSession.sessionSeats = cinema.seats;
+      const save = newSession.save();
+      if (save) {
+        Film.findOneAndUpdate({_id: newSession.film}, {$push: {sessions: newSession._id}}, {new:true})
+        .then((docs)=>{
+          if(docs) {
+            console.log({isSuccessfully: true, data:docs});
+          } else {
+            console.log({isSuccessfully: false, data:"no such film exist"});
+          }
+        }).catch((err)=>{
+          console.log(err);
+        })
+    
+        res.json({newSession, isSuccessfully: true});
+        return;
+      } else {
         console.log(err);
-      })
-       /*  if(!err){
-         
-          res.json()
-        } */
-/*         console.log(err)
-        console.log(res)
-      }) */
-      res.json({result, isSuccessfully: true});
-      return;
-    } else {
+          res.status(500).send(err)
+      } 
+
+    }
+    else {
       console.log(err);
         res.status(500).send(err)
     } 

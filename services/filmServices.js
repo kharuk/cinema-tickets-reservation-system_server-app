@@ -7,7 +7,7 @@ function getAllFilms(req, res) {
 }
 
 function getFilm(req, res) {
- /*  if (req.params.id) {
+ /*   if (req.params.id) {
     const film = _.find(films, {film_id: req.params.id});
     if (film) {
         res.json({session: film, isSuccessfully: true});
@@ -15,12 +15,17 @@ function getFilm(req, res) {
     } else {
       res.status(404).json({isSuccessfully: false});
     }
-  } */
+  }  */
 
-  Film.findById(req.params.id)
+   Film.findById(req.params.id)
   .populate({
     path: 'sessions',
     populate: { path: 'film', select: 'film_info'}
+  }
+  )
+  .populate({
+    path: 'sessions',
+    populate: { path: 'cinema'}
   }
   )
   .exec( function(err, result) {
@@ -31,7 +36,7 @@ function getFilm(req, res) {
       console.log(err);
       res.status(500).send(err)
     } 
-  })
+  }) 
 }
 
 function createFilm(req, res) {

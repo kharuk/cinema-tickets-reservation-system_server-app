@@ -17,12 +17,15 @@ const CinemaSchema = new Schema({
     required: true
   },
   seats: [{
-    
+    type: Schema.Types.ObjectId,
+    ref: 'Seat',
+    required: true,
   }] 
 },
 {
-  timestamps
-});
+  timestamps: true
+}
+);
 
 
 module.exports = mongoose.model('Cinema', CinemaSchema);
