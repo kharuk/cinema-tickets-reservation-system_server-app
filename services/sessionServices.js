@@ -5,28 +5,6 @@ const Film = require('../models/filmModel');
 const Cinema = require('../models/cinemaModel');
 
 function getAllSessions(req, res) {
-//  res.json({sessions, isSuccessfully: true});
-
-  Film.find({})
- .populate({
-   path: 'sessions',
-   populate: { path: 'film', select: 'film_info'}
- }
- )
- .populate({
-   path: 'sessions',
-   populate: { path: 'cinema'}
- }
- )
- .exec( function(err, sessions) {
-   if (!err) {
-     res.json({sessions, isSuccessfully: true});
-     return;
-   } else {
-     console.log(err);
-     res.status(500).send(err)
-   } 
-  })  
 }
 
 function getSessionById(req, res) {
@@ -44,23 +22,24 @@ function getSessionById(req, res) {
       res.status(404).json({isSuccessfully: false});
     }
   } */
-
-  Session.findById(req.params.id)
-  .populate({ path: 'film', select: 'film_info'})
-  .populate({ path: 'sessionSeats'})
-  .populate({
-    path: 'cinema',
-    populate: { path: 'seats'}
-  })
-  .exec( function(err, result) {
-    if (!err) {
-      res.json({session: result, isSuccessfully: true});
-      return;
-    } else {
-      console.log(err);
-      res.status(500).send(err)
-    } 
-  }) 
+  if (req.params.id) {
+    Session.findById(req.params.id)
+    .populate({ path: 'film', select: 'film_info'})
+    .populate({ path: 'sessionSeats'})
+    .populate({
+      path: 'cinema',
+      populate: { path: 'seats'}
+    })
+    .exec( function(err, result) {
+      if (!err) {
+        res.json({session: result, isSuccessfully: true});
+        return;
+      } else {
+        console.log(err);
+        res.status(500).send(err)
+      } 
+    }) 
+  }
 
 }
 
@@ -86,18 +65,16 @@ function createSession(req, res) {
         }).catch((err)=>{
           console.log(err);
         })
-    
         res.json({newSession, isSuccessfully: true});
         return;
       } else {
         console.log(err);
-          res.status(500).send(err)
+        res.status(500).send(err)
       } 
-
     }
     else {
       console.log(err);
-        res.status(500).send(err)
+      res.status(500).send(err)
     } 
   });
 }

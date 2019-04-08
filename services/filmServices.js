@@ -3,7 +3,26 @@ const films = require('../models/data.js');
 const Film = require('../models/filmModel');
 
 function getAllFilms(req, res) {
-  
+  Film.find({})
+  .populate({
+    path: 'sessions',
+    populate: { path: 'film', select: 'film_info'}
+  }
+  )
+  .populate({
+    path: 'sessions',
+    populate: { path: 'cinema'}
+  }
+  )
+  .exec( function(err, sessions) {
+    if (!err) {
+      res.json({sessions, isSuccessfully: true});
+      return;
+    } else {
+      console.log(err);
+      res.status(500).send(err)
+    } 
+  })  
 }
 
 function getFilm(req, res) {
@@ -16,27 +35,26 @@ function getFilm(req, res) {
       res.status(404).json({isSuccessfully: false});
     }
   }  */
-
-   Film.findById(req.params.id)
-  .populate({
-    path: 'sessions',
-    populate: { path: 'film', select: 'film_info'}
+  if (req.params.id) {
+    Film.findById(req.params.id)
+    .populate({
+      path: 'sessions',
+      populate: { path: 'film', select: 'film_info'}
+    })
+    .populate({
+      path: 'sessions',
+      populate: { path: 'cinema'}
+    })
+    .exec( function(err, result) {
+      if (!err) {
+        res.json({result, isSuccessfully: true});
+        return;
+      } else {
+        console.log(err);
+        res.status(500).send(err)
+      } 
+    }) 
   }
-  )
-  .populate({
-    path: 'sessions',
-    populate: { path: 'cinema'}
-  }
-  )
-  .exec( function(err, result) {
-    if (!err) {
-      res.json({result, isSuccessfully: true});
-      return;
-    } else {
-      console.log(err);
-      res.status(500).send(err)
-    } 
-  }) 
 }
 
 function createFilm(req, res) {
@@ -46,17 +64,15 @@ function createFilm(req, res) {
       return;
     } else {
       console.log(err);
-        res.status(500).send(err)
+      res.status(500).send(err)
     } 
   });
 }
 
 function updateFilm(req, res) {
-    
 }
 
 function deleteFilm(req, res) {
-   
 }
 
 module.exports = {

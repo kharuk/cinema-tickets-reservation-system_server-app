@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const SessionSchema = new Schema({
   film: {
-      type: Schema.Types.ObjectId,
-      ref: 'Film',
-      required: true,
+    type: Schema.Types.ObjectId,
+    ref: 'Film',
+    required: true,
   },
   cinema: {
     type: Schema.Types.ObjectId,

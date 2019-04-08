@@ -1,5 +1,4 @@
 const _ = require('lodash');
-//const Cinemas = require('../models/data.js');
 const Cinema = require('../models/cinemaModel');
 const Seats = require('../models/seatModel');
 
@@ -12,8 +11,7 @@ function getCinema(req, res) {
   Cinema.findById(req.params.id)
   .populate({
     path: 'seats'
-  }
-  )
+  })
   .exec( function(err, result) {
     if (!err) {
       res.json({result, isSuccessfully: true});
@@ -32,7 +30,7 @@ function createCinema(req, res) {
       return;
     } else {
       console.log(err);
-        res.status(500).send(err)
+      res.status(500).send(err)
     } 
   });
 }
