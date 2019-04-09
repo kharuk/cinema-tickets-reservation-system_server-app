@@ -48,7 +48,7 @@ function createSeats(req, res) {
   Seats.create(seatsArray, function (err, result) {
     if (!err) {
       result.forEach(seat => {
-        Cinema.findOneAndUpdate({_id: seat.cinema_id}, {$push: {seats: seat._id}}, {new:true})
+        Cinema.findOneAndUpdate({_id: seat.cinema_id}, {$push: {seats: seat._id}, $inc: {seatsAvailable: 1}}, {new:true})
         .then((docs)=>{
           if(docs) {
             console.log({isSuccessfully: true, data:docs});

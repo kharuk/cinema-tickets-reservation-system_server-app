@@ -14,7 +14,8 @@ const CinemaSchema = new Schema({
   },
   seatsAvailable: {
     type: Number,
-    required: true
+    required: true,
+    default: 0
   },
   seats: [{
     type: Schema.Types.ObjectId,

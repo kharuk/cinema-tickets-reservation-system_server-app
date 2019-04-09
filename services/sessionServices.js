@@ -26,13 +26,24 @@ function getSessionById(req, res) {
   if (req.params.id) {
     Session.findById(req.params.id)
     .populate({ path: 'film', select: 'film_info'})
-    .populate({ path: 'sessionSeats'})
+    .populate({ 
+      path: 'sessionSeats',
+      populate: { path: 'seat_id'}
+    })
     .populate({
       path: 'cinema',
-      populate: { path: 'seats'}
+     // populate: { path: 'seats'}
     })
     .exec( function(err, result) {
       if (!err) {
+        _.forEach(result.sessionSeats, (sessionSeat)=> {
+         // let session = _(sessionSeat)
+       //   _.merge(sessionSeat, sessionSeat.seat_id)
+         // .omit(sessionSeat, ['seat_id'])
+         // .value();
+         //delete sessionSeat.seat_id;
+          //console.log(session);
+        })
         res.json({session: result, isSuccessfully: true});
         return;
       } else {
@@ -41,8 +52,56 @@ function getSessionById(req, res) {
       } 
     }) 
   }
-
 }
+
+function createSessionSeatsInfo(cinema, sessionId) {
+  const sessionSeats = [];
+  cinema.seats.forEach(seat => {
+    const sessionSeat = new SessionSeat();
+    sessionSeat.seat_id = seat._id;
+    sessionSeat.session_id = sessionId;
+    sessionSeats.push(sessionSeat);
+  });
+  return sessionSeats;
+}
+
+function createSessionSeats(cinema, sessisonId) {
+  const sessionSeats = createSessionSeatsInfo(cinema, sessisonId);
+  SessionSeat.create(sessionSeats, (err, result) => {
+    if (!err) {
+      Session.findOneAndUpdate({_id: result[0].session_id}, {sessionSeats: result}, {new:true})
+      .then((docs)=>{
+        if(docs) {
+          console.log({isSuccessfully: true, data:docs});
+        } else {
+          console.log({isSuccessfully: false, data:"no such sesison exist"});
+        }
+      }).catch((err)=>{
+        console.log(err);
+      });
+
+      return;
+    } else {
+      console.log(err);
+      // res.status(500).send(err)
+    } 
+  }); 
+}
+
+function updateFilmInfo(filmId, sessionId) {
+  Film.findOneAndUpdate({_id: filmId}, {$push: {sessions: sessionId}}, {new:true})
+  .then((docs)=>{
+    if(docs) {
+     // console.log({isSuccessfully: true, data:docs});
+    } else {
+      console.log({isSuccessfully: false, data:"no such film exist"});
+    }
+  }).catch((err)=>{
+    console.log(err);
+  })
+}
+
+
 
 function createSession(req, res) {
   Cinema.findById({_id: req.body.cinema}, function (err, cinema) {
@@ -53,46 +112,16 @@ function createSession(req, res) {
       newSession.cinema = req.body.cinema;
       newSession.date = req.body.date;
       newSession.session_info = req.body.session_info;
-
-     /*  const sessionSeats = [];
-      cinema.seats.forEach(seat => {
-        const sessionSeat = new SessionSeat();
-        sessionSeat.seat_id = seat._id;
-        sessionSeats.push(sessionSeat);
-      });
-      
-      SessionSeat.create(sessionSeats, function (err, result) {
-        if (!err) {
-         // res.json({result, isSuccessfully: true});
-         console.log('session seats', result);
-          newSession.sessionSeats = result;
+      Session.create(newSession, function(err, sessison) {
+        if(!err) {
+          updateFilmInfo(newSession.film, sessison._id);
+          res.json({session: sessison, isSuccessfully: true});
+          createSessionSeats(cinema, sessison._id);
           return;
         } else {
           console.log(err);
-         // res.status(500).send(err)
-        } 
+        }
       });
- */
-      const save = newSession.save();
-      if (save) {
-        Film.findOneAndUpdate({_id: newSession.film}, {$push: {sessions: newSession._id}}, {new:true})
-        .then((docs)=>{
-          if(docs) {
-            console.log({isSuccessfully: true, data:docs});
-          } else {
-            console.log({isSuccessfully: false, data:"no such film exist"});
-          }
-        }).catch((err)=>{
-          console.log(err);
-        })
-
-        
-        res.json({newSession, isSuccessfully: true});
-        return;
-      } else {
-        console.log(err);
-        res.status(500).send(err)
-      } 
     }
     else {
       console.log(err);
@@ -105,64 +134,17 @@ function updateSeatInfo (req, res) {
   console.log(req.body.booked);
   console.log(req.params);
   const seatId = req.params.id;
- // const seatsQuery = ``;
-
-  var seatSelector = {};
-  var seatSelection = `sessionSeat.${seatId}.booked`;
-  // Part of $and query to check if seat is free
-  seatSelector[seatSelection] = !req.body.booked;
- // seatsQuery.push(seatSelector);
-  // Part of $set operation to set seat as occupied
-  //setSeatsSelection[seatSelection] = 1;  
-
-console.log('seatSelector', seatSelector)
-/*   Session.findOneAndUpdate({_id: req.params.id}, {$set: seatSelector},{new:true}, function(err, doc) {
-      
-    if (!err){
-      console.log('doc', doc);
+  SessionSeat.findOneAndUpdate({_id: req.params.id}, {booked: !req.body.booked}, {new:true})
+  .then((docs)=>{
+    if(docs) {
+      //console.log({isSuccessfully: true, data:docs});
+      res.json({isSuccessfully: true, data:docs})
     } else {
-      console.log(err);
+      console.log({isSuccessfully: false, data:"no such film exist"});
     }
-  });
- */
-  Session.findById(req.params.session_id)
-    .populate({ path: 'sessionSeats'})
-    //.findOne({'sessionSeats._id': seatId})
-    .update({'sessionSeats._id': seatId}, {$set: {'sessionSeats.$.booked': !req.body.booked}})
-   // .findOne({'sessionSeats._id': seatId})
-   /*  .update( 
-      {'sessionSeats._id': seatId},
-      {$set: {'sessionSeats.$.booked': !req.body.booked}}
-    ) */
-    .exec( function(err, result) {
-      if (!err) {
-       // res.json({session: result, isSuccessfully: true});
-       console.log(result);
-        return;
-      } else {
-        console.log(err);
-      //  res.status(500).send(err)
-      } 
-    }) 
- 
-/*   Model.update(
-    { 'pdfs.pdf_id': pdf_id }, 
-    { $set: { 
-        'pdfs.$.title': title, 
-        'pdfs.$.description': description 
-    }}, function (err, numAffected) { ... }
-); */
- /*  User.findOne({username: oldUsername}, function (err, user) {
-    user.username = newUser.username;
-    user.password = newUser.password;
-    user.rights = newUser.rights;
-
-    user.save(function (err) {
-        if(err) {
-            console.error('ERROR!');
-        }
-    });
-}); */
+  }).catch((err)=>{
+    console.log(err);
+  })
 }
 
 module.exports = {

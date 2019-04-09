@@ -32,7 +32,7 @@ const SessionSchema = new Schema({
   }, 
   sessionSeats: [{
     type: Schema.Types.ObjectId,
-    ref: 'Seat',
+    ref: 'SessionSeat',
     required: true,
   }]
 },
