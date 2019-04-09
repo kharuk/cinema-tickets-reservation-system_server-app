@@ -12,9 +12,14 @@ function createSession(req, res) {
   sessionServices.createSession(req, res);
 }
 
+function updateSeatInfo(req, res) {
+  sessionServices.updateSeatInfo(req, res);
+}
+
 
 module.exports = {
   getAllSessions,
   getSessionById,
-  createSession
+  createSession,
+  updateSeatInfo
 };

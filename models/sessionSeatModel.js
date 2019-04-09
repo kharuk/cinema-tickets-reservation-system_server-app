@@ -2,15 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const SeatSchema = new Schema({
-  row: {
-    type: Number,
-    required: true
-  },
-  column: {
-    type: Number,
-    required: true
-  },
-/*   chosen: {
+  chosen: {
     type: Boolean,
     required: true,
     default: false
@@ -19,19 +11,15 @@ const SeatSchema = new Schema({
     type: Boolean,
     required: true,
     default: false
-  }, */
-  type: {
-    type: String,
-    required: true
   },
-/*   selectionDatetime: {
+  selectionDatetime: {
     type: Date,
     //default: new Date(),
    // required: true
-  }, */
-  cinema_id: {
+  },
+  seat_id: {
     type: Schema.Types.ObjectId,
-    ref: 'Cinema',
+    ref: 'Seat',
     required: true,
   }
 },
@@ -40,4 +28,4 @@ const SeatSchema = new Schema({
 });
 
 
-module.exports = mongoose.model('Seat', SeatSchema);
+module.exports = mongoose.model('SessionSeat', SeatSchema);
