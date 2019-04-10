@@ -36,14 +36,6 @@ function getSessionById(req, res) {
     })
     .exec( function(err, result) {
       if (!err) {
-        _.forEach(result.sessionSeats, (sessionSeat)=> {
-         // let session = _(sessionSeat)
-       //   _.merge(sessionSeat, sessionSeat.seat_id)
-         // .omit(sessionSeat, ['seat_id'])
-         // .value();
-         //delete sessionSeat.seat_id;
-          //console.log(session);
-        })
         res.json({session: result, isSuccessfully: true});
         return;
       } else {
@@ -89,9 +81,11 @@ function createSessionSeats(cinema, sessisonId) {
 }
 
 function updateFilmInfo(filmId, sessionId) {
+ // return Film.findOneAndUpdate({_id: filmId}, {$push: {sessions: sessionId}}, {new:true})
   Film.findOneAndUpdate({_id: filmId}, {$push: {sessions: sessionId}}, {new:true})
   .then((docs)=>{
     if(docs) {
+      return docs;
      // console.log({isSuccessfully: true, data:docs});
     } else {
       console.log({isSuccessfully: false, data:"no such film exist"});
@@ -114,7 +108,8 @@ function createSession(req, res) {
       newSession.session_info = req.body.session_info;
       Session.create(newSession, function(err, sessison) {
         if(!err) {
-          updateFilmInfo(newSession.film, sessison._id);
+        //  updateFilmInfo(newSession.film, sessison._id).then(docs => {});
+          updateFilmInfo(newSession.film, sessison._id)
           res.json({session: sessison, isSuccessfully: true});
           createSessionSeats(cinema, sessison._id);
           return;
@@ -131,10 +126,10 @@ function createSession(req, res) {
 }
 
 function updateSeatInfo (req, res) {
-  console.log(req.body.booked);
+  console.log(req.body.chosen);
   console.log(req.params);
   const seatId = req.params.id;
-  SessionSeat.findOneAndUpdate({_id: req.params.id}, {booked: !req.body.booked}, {new:true})
+  SessionSeat.findOneAndUpdate({_id: req.params.id}, {chosen: !req.body.chosen}, {new:true})
   .then((docs)=>{
     if(docs) {
       //console.log({isSuccessfully: true, data:docs});
