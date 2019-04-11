@@ -12,7 +12,7 @@ const SeatSchema = new Schema({
     required: true,
     default: false
   },
-  selectionDatetime: {
+  lastSelectionDatetime: {
     type: Date,
     //default: new Date(),
    // required: true

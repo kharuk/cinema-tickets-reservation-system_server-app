@@ -4,8 +4,22 @@ const Session = require('../models/sessionModel');
 const Film = require('../models/filmModel');
 const Cinema = require('../models/cinemaModel');
 const SessionSeat = require('../models/sessionSeatModel');
+const moment = require('moment');
 
 function getAllSessions(req, res) {
+}
+
+function updateSeatsInfo(sessionId) {
+  SessionSeat.find({sesison_id: sesison_id}, {chosen: !req.body.chosen, user_id: req.user._id, lastSelectionDatetime: new Date()}, {new:true})
+  .then((docs)=>{
+    if(docs) {
+      res.json({isSuccessfully: true, data:docs})
+    } else {
+      console.log({isSuccessfully: false, data:"no such film exist"});
+    }
+  }).catch((err)=>{
+    console.log(err);
+  })
 }
 
 function getSessionById(req, res) {
@@ -23,6 +37,7 @@ function getSessionById(req, res) {
       res.status(404).json({isSuccessfully: false});
     }
   } */
+  console.log(req.user._id)
   if (req.params.id) {
     Session.findById(req.params.id)
     .populate({ path: 'film', select: 'film_info'})
@@ -36,6 +51,13 @@ function getSessionById(req, res) {
     })
     .exec( function(err, result) {
       if (!err) {
+        result.sessionSeats = result.sessionSeats.map((item) => {
+          if (!item.user_id.equals(req.user._id) && item.chosen) {
+            item.booked = true;
+            item.chosen = false;
+          }
+          return item
+        });
         res.json({session: result, isSuccessfully: true});
         return;
       } else {
@@ -128,11 +150,14 @@ function createSession(req, res) {
 function updateSeatInfo (req, res) {
   console.log(req.body.chosen);
   console.log(req.params);
-  SessionSeat.findOneAndUpdate({_id: req.params.id}, {chosen: !req.body.chosen, user_id: req.user._id}, {new:true})
+  SessionSeat.findOneAndUpdate({_id: req.params.id}, {chosen: !req.body.chosen, user_id: req.user._id, lastSelectionDatetime: new Date()}, {new:true})
   .then((docs)=>{
     if(docs) {
-      //console.log({isSuccessfully: true, data:docs});
-
+      const timeoutObj = setTimeout(async(id) => {
+        let timeNow = new Date();
+        let dateToCompare = moment(timeNow).subtract(6, 's').toDate();
+        let result = await wrapper(SessionSeat.findOneAndUpdate({_id: id, lastSelectionDatetime: {$lte: dateToCompare},  booked: false}, {chosen: false}, {new: true}));
+      }, 6* 1000, req.params.id, );
       res.json({isSuccessfully: true, data:docs})
     } else {
       console.log({isSuccessfully: false, data:"no such film exist"});
@@ -163,10 +188,9 @@ async function bookSelectedSeats (req, res) {
 }
 
 async function removeBooking (req, res) {
-  //req.user._id
   let finalArray = req.body.map(async (selectedSeat) => {
-  let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id}, {chosen: false}));
-  return result;
+    let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id}, {chosen: false}));
+    return result;
   });
   const resArray = await Promise.all(finalArray); 
   if (resArray.some((item) => item.isSuccessfully === false)){
