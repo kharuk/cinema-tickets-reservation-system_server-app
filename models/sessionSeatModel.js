@@ -26,6 +26,10 @@ const SeatSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Session',
     required: true,
+  },
+  user_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
   }
 },
 {

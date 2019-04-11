@@ -16,10 +16,20 @@ function updateSeatInfo(req, res) {
   sessionServices.updateSeatInfo(req, res);
 }
 
+function bookSelectedSeats(req, res) {
+  sessionServices.bookSelectedSeats(req, res);
+}
+
+function removeBooking(req, res) {
+  sessionServices.removeBooking(req, res);
+}
+
 
 module.exports = {
   getAllSessions,
   getSessionById,
   createSession,
-  updateSeatInfo
+  updateSeatInfo,
+  bookSelectedSeats,
+  removeBooking
 };

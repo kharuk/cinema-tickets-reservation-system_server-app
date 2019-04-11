@@ -128,11 +128,11 @@ function createSession(req, res) {
 function updateSeatInfo (req, res) {
   console.log(req.body.chosen);
   console.log(req.params);
-  const seatId = req.params.id;
-  SessionSeat.findOneAndUpdate({_id: req.params.id}, {chosen: !req.body.chosen}, {new:true})
+  SessionSeat.findOneAndUpdate({_id: req.params.id}, {chosen: !req.body.chosen, user_id: req.user._id}, {new:true})
   .then((docs)=>{
     if(docs) {
       //console.log({isSuccessfully: true, data:docs});
+
       res.json({isSuccessfully: true, data:docs})
     } else {
       console.log({isSuccessfully: false, data:"no such film exist"});
@@ -142,9 +142,45 @@ function updateSeatInfo (req, res) {
   })
 }
 
+
+const wrapper = promise => (
+  promise
+    .then(seat => ({ seat, error: null, isSuccessfully: true }))
+    .catch(error => ({ error, seat: null, isSuccessfully: false }))
+)
+
+async function bookSelectedSeats (req, res) {
+  let finalArray = req.body.map(async (selectedSeat) => {
+    let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id}, {booked: true, chosen: false}));
+    return result;
+  });
+  const resArray = await Promise.all(finalArray); 
+  if (resArray.some((item) => item.isSuccessfully === false)){
+    res.json({isSuccessfully: false})
+  } else {
+    res.json({isSuccessfully: true});
+  }
+}
+
+async function removeBooking (req, res) {
+  //req.user._id
+  let finalArray = req.body.map(async (selectedSeat) => {
+  let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id}, {chosen: false}));
+  return result;
+  });
+  const resArray = await Promise.all(finalArray); 
+  if (resArray.some((item) => item.isSuccessfully === false)){
+    res.json({isSuccessfully: false})
+  } else {
+    res.json({isSuccessfully: true});
+  } 
+}
+
 module.exports = {
   getAllSessions,
   getSessionById, 
   createSession,
-  updateSeatInfo
+  updateSeatInfo,
+  bookSelectedSeats,
+  removeBooking
 };
