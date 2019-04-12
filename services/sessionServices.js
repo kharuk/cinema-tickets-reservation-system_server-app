@@ -145,6 +145,7 @@ const wrapper = promise => (
 )
 
 async function bookSelectedSeats (req, res) {
+  console.log('book seats', req.body);
   let finalArray = req.body.map(async (selectedSeat) => {
     let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id, booked: false}, {booked: true, chosen: false, user_id: req.user._id}));
     return result;
@@ -153,8 +154,15 @@ async function bookSelectedSeats (req, res) {
   if (resArray.some((item) => item.isSuccessfully === false || !item.seat)){
     res.json({isSuccessfully: false})
   } else {
-    res.json({isSuccessfully: true});
-  }
+    let result = await wrapper(Session.findOneAndUpdate({_id: req.body[0].session_id}, {$inc: {seatsAvailable: -req.body.length}}));
+    res.json(result);
+   /*  if (result.isSuccessfully) {
+      res.json({isSuccessfully: true});
+    } else {
+      res.json({isSuccessfully: false});
+    } */
+    
+  } 
 }
 
 async function removeBooking (req, res) {
