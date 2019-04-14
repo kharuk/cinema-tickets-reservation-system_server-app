@@ -140,21 +140,22 @@ function updateSeatInfo (req, res) {
 
 const wrapper = promise => (
   promise
-    .then(seat => ({ seat, error: null, isSuccessfully: true }))
-    .catch(error => ({ error, seat: null, isSuccessfully: false }))
+    .then(result => ({ result, error: null, isSuccessfully: true }))
+    .catch(error => ({ error, result: null, isSuccessfully: false }))
 )
 
 async function bookSelectedSeats (req, res) {
-  console.log('book seats', req.body);
+ // console.log('book seats', req.body);
   let finalArray = req.body.map(async (selectedSeat) => {
     let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id, booked: false}, {booked: true, chosen: false, user_id: req.user._id}));
     return result;
   });
   const resArray = await Promise.all(finalArray); 
-  if (resArray.some((item) => item.isSuccessfully === false || !item.seat)){
+  if (resArray.some((item) => item.isSuccessfully === false || !item.result)){
     res.json({isSuccessfully: false})
   } else {
     let result = await wrapper(Session.findOneAndUpdate({_id: req.body[0].session_id}, {$inc: {seatsAvailable: -req.body.length}}));
+    console.log(result);
     res.json(result);
    /*  if (result.isSuccessfully) {
       res.json({isSuccessfully: true});
@@ -178,11 +179,19 @@ async function removeBooking (req, res) {
   } 
 }
 
+async function deleteAllSessions (req, res) {
+  console.log(req.params);
+  console.log('qwerty');
+  let result =  await wrapper(Film.findOneAndUpdate({_id: req.params.id}, {$unset: {sessions: 1 }}, {new: true}));
+  res.json(result);
+}
+
 module.exports = {
   getAllSessions,
   getSessionById, 
   createSession,
   updateSeatInfo,
   bookSelectedSeats,
-  removeBooking
+  removeBooking,
+  deleteAllSessions
 };

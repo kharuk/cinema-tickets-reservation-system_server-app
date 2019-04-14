@@ -24,6 +24,10 @@ function removeBooking(req, res) {
   sessionServices.removeBooking(req, res);
 }
 
+function deleteAllSessions(req, res) {
+  sessionServices.deleteAllSessions(req, res);
+}
+
 
 module.exports = {
   getAllSessions,
@@ -31,5 +35,6 @@ module.exports = {
   createSession,
   updateSeatInfo,
   bookSelectedSeats,
-  removeBooking
+  removeBooking,
+  deleteAllSessions
 };
