@@ -4,9 +4,9 @@ Node.js, Express, MongoDB
 
 ## Description
 
-This is a server application for cinema ticket reservation.\
-* Node.js and Express were used for developing this server.\
-* Middleware passport was used for authentication.\
+This is a server application for cinema ticket reservation.
+* Node.js and Express were used for developing this server.
+* Middleware passport was used for authentication.
 * NoSQL database MongoDB was chosen for operating with data. Work with MongoDB was organized with the help of mongoose which allows managing data quicker and safer.
 
 ## Set up
