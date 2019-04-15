@@ -11,8 +11,8 @@ This is a server application for cinema ticket reservation.
 
 ## Set up
 
-Clone this repo. 
-Go to branch *develop*
+Clone this repo.\
+Go to branch *develop*.\
 In order to install dependencies run\
 ```npm install```\
 In order to start the project run  
