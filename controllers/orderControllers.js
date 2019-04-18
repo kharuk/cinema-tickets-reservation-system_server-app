@@ -1,7 +1,7 @@
 const orderServices = require('../services/orderServices');
 
-function getAllOrders(req, res) {
-  orderServices.getAllOrders(req, res); 
+function getOrders(req, res) {
+  orderServices.getOrders(req, res); 
 }
 
 function createOrder(req, res) {
@@ -10,6 +10,6 @@ function createOrder(req, res) {
 
 
 module.exports = {
-  getAllOrders,
+  getOrders,
   createOrder
 };
