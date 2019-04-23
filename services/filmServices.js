@@ -58,11 +58,14 @@ function getFilm(req, res) {
 }
 
 function createFilm(req, res) {
+  console.log('qwerty');
+  console.log(req.body);
   Film.create(req.body, function (err, result) {
     if (!err) {
       res.json({result, isSuccessfully: true});
       return;
     } else {
+
       console.log(err);
       res.status(500).send(err)
     } 
