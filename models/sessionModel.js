@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const sessionSeats = require('./sessionSeatModel');
 
 const SessionSchema = new Schema({
   film: {
@@ -40,6 +41,12 @@ const SessionSchema = new Schema({
     timestamps: true
   }
 );
+
+SessionSchema.pre('remove', function(next) {
+  console.log('remove');
+  sessionSeats.deleteMany({ session_id: this._id }).exec();
+  next();
+});
 
 
 module.exports = mongoose.model('Session', SessionSchema);

@@ -10,6 +10,7 @@ router.put('/sessions/:id/seats/removeBooking', passport.authenticate('jwt', { s
 router.put('/sessions/:session_id/seats/:id', passport.authenticate('jwt', { session: false }), sessionControllers.updateSeatInfo);
 router.put('/sessions/:id/seats/', passport.authenticate('jwt', { session: false }), sessionControllers.bookSelectedSeats);
 router.delete('/films/:id/sessions/', passport.authenticate('jwt', { session: false }), sessionControllers.deleteAllSessions);
+router.delete('/sessions/:id/', passport.authenticate('jwt', { session: false }), sessionControllers.deleteSession);
 
 
 module.exports = router;

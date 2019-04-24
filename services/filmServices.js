@@ -1,6 +1,10 @@
-const _ = require('lodash');
-const films = require('../models/data.js');
 const Film = require('../models/filmModel');
+
+const wrapper = promise => (
+  promise
+    .then(result => ({ result, error: null, isSuccessfully: true }))
+    .catch(error => ({ error, result: null, isSuccessfully: false }))
+)
 
 function getAllFilms(req, res) {
   Film.find({})
@@ -26,15 +30,6 @@ function getAllFilms(req, res) {
 }
 
 function getFilm(req, res) {
- /*   if (req.params.id) {
-    const film = _.find(films, {film_id: req.params.id});
-    if (film) {
-        res.json({session: film, isSuccessfully: true});
-        return;
-    } else {
-      res.status(404).json({isSuccessfully: false});
-    }
-  }  */
   if (req.params.id) {
     Film.findById(req.params.id)
     .populate({
@@ -58,24 +53,29 @@ function getFilm(req, res) {
 }
 
 function createFilm(req, res) {
-  console.log('qwerty');
-  console.log(req.body);
   Film.create(req.body, function (err, result) {
     if (!err) {
       res.json({result, isSuccessfully: true});
       return;
     } else {
-
       console.log(err);
       res.status(500).send(err)
     } 
   });
 }
 
-function updateFilm(req, res) {
+async function updateFilm(req, res) {
+   let result = await wrapper(Film.findOneAndUpdate({_id: req.params.id}, {film_info: req.body.film_info}, {new:true}));
+   if (result.error) {
+    result.message = "no such film exist";
+    res.json(result); 
+   }
+  res.json(result);
 }
 
-function deleteFilm(req, res) {
+async function deleteFilm(req, res) {
+  let result = await wrapper(Film.deleteOne({ _id: req.params.id }));
+  res.json(result);
 }
 
 module.exports = {

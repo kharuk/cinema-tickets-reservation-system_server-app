@@ -63,7 +63,7 @@ function createSessionSeats(cinema, sessisonId) {
         if(docs) {
           console.log({isSuccessfully: true, data:docs});
         } else {
-          console.log({isSuccessfully: false, data:"no such sesison exist"});
+          console.log({isSuccessfully: false, data:"no such sessison exist"});
         }
       }).catch((err)=>{
         console.log(err);
@@ -186,6 +186,13 @@ async function deleteAllSessions (req, res) {
   res.json(result);
 }
 
+async function deleteSession(req, res) {
+  let result = await wrapper(Session.remove({ _id: req.params.id }));
+  console.log('deleteSession', result);
+  res.json(result);
+}
+
+
 module.exports = {
   getAllSessions,
   getSessionById, 
@@ -193,5 +200,6 @@ module.exports = {
   updateSeatInfo,
   bookSelectedSeats,
   removeBooking,
-  deleteAllSessions
+  deleteAllSessions,
+  deleteSession
 };
