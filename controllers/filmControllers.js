@@ -20,6 +20,16 @@ function deleteFilm(req, res) {
   filmServices.deleteFilm(req, res);  
 }
 
+async function deleteFilm(req, res, next) {
+  try {
+    const { id } = req.params;
+    let deletedFilm =  await filmServices.deleteFilm(id);
+    res.json(deletedFilm);
+  } catch(err) {
+    next(err);
+  } 
+}
+
 module.exports = {
   getAllFilms,
   getFilm,

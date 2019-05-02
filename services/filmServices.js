@@ -1,4 +1,5 @@
 const Film = require('../models/filmModel');
+const sessionServices = require('./sessionServices');
 
 const wrapper = promise => (
   promise
@@ -73,9 +74,21 @@ async function updateFilm(req, res) {
   res.json(result);
 }
 
-async function deleteFilm(req, res) {
-  let result = await wrapper(Film.deleteOne({ _id: req.params.id }));
-  res.json(result);
+async function deleteFilm(id) {
+  let deletedFilm = await wrapper(Film.findByIdAndDelete(id));
+  if (deletedFilm.result && deletedFilm.isSuccessfully) {
+    let deletedSessions = deletedFilm.result.sessions.map(async (session) => {
+      return await sessionServices.deleteSession(session);
+    });
+    const resArray = await Promise.all(deletedSessions); 
+    if (resArray.some((item) => item.isSuccessfully === false)){
+      return({isSuccessfully: false})
+    } else {
+      return({isSuccessfully: true});
+    }  
+  } else {
+    return ({isSuccessfully: false, message: 'Nothing not found'})
+  }
 }
 
 module.exports = {

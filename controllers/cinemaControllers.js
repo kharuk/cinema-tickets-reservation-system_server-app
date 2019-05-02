@@ -16,8 +16,15 @@ function updateCinema(req, res) {
   cinemaServices.updateCinema(req, res);  
 }
 
-function deleteCinema(req, res) {
-  cinemaServices.deleteCinema(req, res);  
+
+async function deleteCinema(req, res, next) {
+  try {
+    const { id } = req.params;
+    let deletedCinema =  await cinemaServices.deleteCinema(id);
+    res.json(deletedCinema);
+  } catch(err) {
+    next(err);
+  } 
 }
 
 function createSeats(req, res) {

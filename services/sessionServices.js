@@ -180,16 +180,38 @@ async function removeBooking (req, res) {
 }
 
 async function deleteAllSessions (req, res) {
-  console.log(req.params);
-  console.log('qwerty');
   let result =  await wrapper(Film.findOneAndUpdate({_id: req.params.id}, {$unset: {sessions: 1 }}, {new: true}));
   res.json(result);
 }
 
-async function deleteSession(req, res) {
-  let result = await wrapper(Session.remove({ _id: req.params.id }));
-  console.log('deleteSession', result);
-  res.json(result);
+async function deleteSession(id) {
+  let deletedSession = await wrapper(Session.findByIdAndDelete(id));
+  if (deletedSession.result && deletedSession.isSuccessfully) {
+    let deletedSessionFromFilm =  await deleteSessionFromFilmModel(deletedSession.result.film, deletedSession.result._id);
+    if (deletedSessionFromFilm.isSuccessfully) {
+      return await deleteSessionSeats(deletedSession.result.sessionSeats);
+    }
+  } else {
+    return ({isSuccessfully: false, message: 'Nothing not found'});
+  }
+}
+
+async function deleteSessionFromFilmModel(filmId, sessionId) {
+  let result =  await wrapper(Film.findOneAndUpdate({_id: filmId}, { $pull: { sessions: sessionId} }, {new: true}));
+  return result;
+}
+
+async function deleteSessionSeats(sessionSeats) {
+  let deletedSessionSeatsArray = sessionSeats.map(async (sessionSeat) => {
+    let result = await wrapper(SessionSeat.findByIdAndDelete(sessionSeat))
+    return result;
+  });
+  const resArray = await Promise.all(deletedSessionSeatsArray); 
+  if (resArray.some((item) => item.isSuccessfully === false)){
+    return({isSuccessfully: false})
+  } else {
+    return({isSuccessfully: true});
+  } 
 }
 
 

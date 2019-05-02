@@ -2,6 +2,7 @@ const _ = require('lodash');
 const Cinema = require('../models/cinemaModel');
 const Seats = require('../models/seatModel');
 const Session = require('../models/sessionModel');
+const sessionServices = require('./sessionServices');
 
 function getAllCinemas(req, res) {
   Cinema.find({})
@@ -62,19 +63,23 @@ async function updateCinema(req, res) {
   res.json(result);
 }
 
-async function deleteCinema(req, res) {
-  let result = await wrapper(Cinema.deleteOne({ _id: req.params.id }));
-  if (!result.error) {
-    let isSeatsDeleted = await deleteCinemaSeats(req.params.id);
-    //console.log(isSeatsDeleted);
-    let isSessionDeleted = await deleteSession(req.params.id);
-
-    //console.log(isSessionDeleted);
-    res.json(result);
-  }
-  result.message = "no such cinema exist";
-  res.json(result);
-  
+async function deleteCinema(id) {
+   let deletedCinema = await wrapper(Cinema.findByIdAndDelete(id));
+  if (deletedCinema.result && deletedCinema.isSuccessfully) {
+    let resultArray = [];
+    resultArray.push(await deleteCinemaSeats(id));
+    resultArray.push(deleteSessions(id));
+   // return await sessionServices.deleteSession(session);
+    const resArray = await Promise.all(resultArray); 
+    console.log('resArray', resArray);
+    if (resArray.some((item) => item.isSuccessfully === false)){
+      return({isSuccessfully: false})
+    } else {
+      return({isSuccessfully: true});
+    } 
+  } else {
+    return ({isSuccessfully: false, message: 'Nothing not found'});
+  }  
 }
 
 
@@ -84,10 +89,17 @@ async function deleteCinemaSeats(cinemaId) {
   return result
 }
 
-async function deleteSession(cinemaId) {
-  let result = await wrapper(Session.remove({ cinema: cinemaId }));
-  console.log('deleteSession', result);
-  return result
+async function deleteSessions(cinemaId) {
+  let sessionsResult = await wrapper(Session.find({ cinema: cinemaId }));
+  let deletedSessionsArray = sessionsResult.result.map(async (session) => {
+    return await sessionServices.deleteSession(session._id)
+  });
+   const resArray = await Promise.all(deletedSessionsArray); 
+  if (resArray.some((item) => item.isSuccessfully === false)){
+    return({isSuccessfully: false})
+  } else {
+    return({isSuccessfully: true});
+  } 
 }
 
 

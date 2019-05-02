@@ -28,8 +28,14 @@ function deleteAllSessions(req, res) {
   sessionServices.deleteAllSessions(req, res);
 }
 
-function deleteSession(req, res) {
-  sessionServices.deleteSession(req, res);
+async function deleteSession(req, res, next) {
+  try {
+    const { id } = req.params;
+    let deletedSession =  await sessionServices.deleteSession(id);
+    res.json(deletedSession)
+  } catch(err) {
+    next(err);
+  } 
 }
 
 
