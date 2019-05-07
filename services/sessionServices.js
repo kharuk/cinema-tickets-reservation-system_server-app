@@ -1,19 +1,36 @@
 const _ = require('lodash');
-//const sessions = require('../models/data.js');
 const Session = require('../models/sessionModel');
 const Film = require('../models/filmModel');
 const Cinema = require('../models/cinemaModel');
 const SessionSeat = require('../models/sessionSeatModel');
 const moment = require('moment');
 
-function getAllSessions(req, res) {
+const wrapper = promise => (
+  promise
+    .then(result => ({ result, error: null, isSuccessfully: true }))
+    .catch(error => ({ error, result: null, isSuccessfully: false }))
+)
+
+function getAllSessions() {
 
 }
 
+async function formatSessionSeats(session, user) {
+  session.sessionSeats = await session.sessionSeats.map((item) => {
+    if (item.user_id) {   
+       if (!item.user_id.equals(user._id) && item.chosen) {
+        item.booked = true;
+        item.chosen = false;
+      }
+    }
+    return item
+  });
+  return ({session: session, isSuccessfully: true});
+}
 
-function getSessionById(req, res) {
-  if (req.params.id) {
-    Session.findById(req.params.id)
+async function getSessionById(id, user) {
+  if (id) {
+    let session = await Session.findById(id)
     .populate({ path: 'film', select: 'film_info'})
     .populate({ 
       path: 'sessionSeats',
@@ -21,25 +38,9 @@ function getSessionById(req, res) {
     })
     .populate({
       path: 'cinema',
-    })
-    .exec( function(err, result) {
-      if (!err) {
-        result.sessionSeats = result.sessionSeats.map((item) => {
-          if (item.user_id) {   
-             if (!item.user_id.equals(req.user._id) && item.chosen) {
-              item.booked = true;
-              item.chosen = false;
-            }
-          }
-          return item
-        });
-        res.json({session: result, isSuccessfully: true});
-        return;
-      } else {
-        console.log(err);
-        res.status(500).send(err)
-      } 
-    }) 
+    });
+    session = await formatSessionSeats(session, user);
+    return session;
   }
 }
 
@@ -68,7 +69,6 @@ function createSessionSeats(cinema, sessisonId) {
       }).catch((err)=>{
         console.log(err);
       });
-
       return;
     } else {
       console.log(err);
@@ -77,7 +77,6 @@ function createSessionSeats(cinema, sessisonId) {
 }
 
 function updateFilmInfo(filmId, sessionId) {
- // return Film.findOneAndUpdate({_id: filmId}, {$push: {sessions: sessionId}}, {new:true})
   Film.findOneAndUpdate({_id: filmId}, {$push: {sessions: sessionId}}, {new:true})
   .then((docs)=>{
     if(docs) {
@@ -90,98 +89,65 @@ function updateFilmInfo(filmId, sessionId) {
   })
 }
 
-
-
-function createSession(req, res) {
-  Cinema.findById({_id: req.body.cinema}, function (err, cinema) {
-    if (!err) {
-      const newSession = new Session();
-      newSession.film = req.body.film;
-      newSession.seatsAvailable = cinema.seatsAvailable;
-      newSession.cinema = req.body.cinema;
-      newSession.date = req.body.date;
-      newSession.session_info = req.body.session_info;
-      Session.create(newSession, function(err, sessison) {
-        if(!err) {
-        //  updateFilmInfo(newSession.film, sessison._id).then(docs => {});
-          updateFilmInfo(newSession.film, sessison._id)
-          res.json({session: sessison, isSuccessfully: true});
-          createSessionSeats(cinema, sessison._id);
-          return;
-        } else {
-          console.log(err);
-        }
-      });
-    }
-    else {
-      console.log(err);
-      res.status(500).send(err)
-    } 
-  });
+async function createSession(sessionInfo) {
+  let cinema = await Cinema.findById({_id: sessionInfo.cinema});
+  console.log(cinema);
+  const newSession = new Session();
+  newSession.film = sessionInfo.film;
+  newSession.seatsAvailable = cinema.seatsAvailable;
+  newSession.cinema = sessionInfo.cinema;
+  newSession.date = sessionInfo.date;
+  newSession.session_info = sessionInfo.session_info;
+  let session = await Session.create(newSession);
+  await updateFilmInfo(newSession.film, session._id);
+  await createSessionSeats(cinema, session._id);
+  return ({session: session, isSuccessfully: true});
 }
 
-function updateSeatInfo (req, res) {
-  SessionSeat.findOneAndUpdate({_id: req.params.id, booked: false, $or: [ { user_id: null}, { user_id: req.user._id }, {chosen: false} ] }, {chosen: !req.body.chosen, user_id: req.user._id, lastSelectionDatetime: new Date()}, {new:true})
-  .then((docs)=>{
-    if(docs) {
-      const timeoutObj = setTimeout(async(id) => {
-        let timeNow = new Date();
-        let dateToCompare = moment(timeNow).subtract(30, 's').toDate();
-        let result = await wrapper(SessionSeat.findOneAndUpdate({_id: id, lastSelectionDatetime: {$lte: dateToCompare},  booked: false}, {chosen: false, user_id: null}, {new: true}));
-      }, 30 * 1000, req.params.id);
-      res.json({isSuccessfully: true, data:docs})
-    } else {
-      res.json({isSuccessfully: false, data:"This seat has alredy booked"});
-    }
-  }).catch((err)=>{
-    console.log(err);
-  })
+async function updateSeatInfo (id, seatInfo, user) {
+  let updatedSeat = await SessionSeat.findOneAndUpdate({_id: id, booked: false, $or: [ { user_id: null}, { user_id: user._id }, {chosen: false} ] }, {chosen: !seatInfo.chosen, user_id: user._id, lastSelectionDatetime: new Date()}, {new:true});
+  if(updatedSeat) {
+    const timeoutObj = setTimeout(async(id) => {
+      let timeNow = new Date();
+      let dateToCompare = moment(timeNow).subtract(30, 's').toDate();
+      let result = await wrapper(SessionSeat.findOneAndUpdate({_id: id, lastSelectionDatetime: {$lte: dateToCompare},  booked: false}, {chosen: false, user_id: null}, {new: true}));
+    }, 30 * 1000, id);
+    return ({isSuccessfully: true, data:updatedSeat})
+  } else {
+    return ({isSuccessfully: false, data:"This seat has alredy booked"});
+  }
 }
 
-const wrapper = promise => (
-  promise
-    .then(result => ({ result, error: null, isSuccessfully: true }))
-    .catch(error => ({ error, result: null, isSuccessfully: false }))
-)
-
-async function bookSelectedSeats (req, res) {
- // console.log('book seats', req.body);
-  let finalArray = req.body.map(async (selectedSeat) => {
-    let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id, booked: false}, {booked: true, chosen: false, user_id: req.user._id}));
+async function bookSelectedSeats (seats, user) {
+  let finalArray = seats.map(async (selectedSeat) => {
+    let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id, booked: false}, {booked: true, chosen: false, user_id: user._id}));
     return result;
   });
   const resArray = await Promise.all(finalArray); 
   if (resArray.some((item) => item.isSuccessfully === false || !item.result)){
-    res.json({isSuccessfully: false})
+    return ({isSuccessfully: false})
   } else {
-    let result = await wrapper(Session.findOneAndUpdate({_id: req.body[0].session_id}, {$inc: {seatsAvailable: -req.body.length}}));
+    let result = await wrapper(Session.findOneAndUpdate({_id: seats[0].session_id}, {$inc: {seatsAvailable: -seats.length}}));
     console.log(result);
-    res.json(result);
-   /*  if (result.isSuccessfully) {
-      res.json({isSuccessfully: true});
-    } else {
-      res.json({isSuccessfully: false});
-    } */
-    
+    return result
   } 
 }
 
-async function removeBooking (req, res) {
-  let finalArray = req.body.map(async (selectedSeat) => {
+async function removeBooking (seats) {
+  let finalArray = seats.map(async (selectedSeat) => {
     let result = await wrapper(SessionSeat.findOneAndUpdate({_id: selectedSeat._id}, {chosen: false}));
     return result;
   });
   const resArray = await Promise.all(finalArray); 
   if (resArray.some((item) => item.isSuccessfully === false)){
-    res.json({isSuccessfully: false})
+    return ({isSuccessfully: false})
   } else {
-    res.json({isSuccessfully: true});
+    return ({isSuccessfully: true});
   } 
 }
 
-async function deleteAllSessions (req, res) {
-  let result =  await wrapper(Film.findOneAndUpdate({_id: req.params.id}, {$unset: {sessions: 1 }}, {new: true}));
-  res.json(result);
+async function deleteAllSessions (id) {
+  return  await wrapper(Film.findOneAndUpdate({_id: id}, {$unset: {sessions: 1 }}, {new: true}));
 }
 
 async function deleteSession(id) {

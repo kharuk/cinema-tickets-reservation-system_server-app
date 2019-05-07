@@ -5,6 +5,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
+const { handleError } = require('./middlewares/hangleErrorMiddleware');
+
 const PORT = 8080;
 require("./config/passport");
 
@@ -21,6 +23,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(passport.initialize());
 app.use(router);
+app.use(handleError);
+
 
 mongoose
   .connect(`mongodb+srv://nastya:6852922@ticket-reservation-bgnik.mongodb.net/test?retryWrites=true`, {
