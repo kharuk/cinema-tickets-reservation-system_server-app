@@ -55,9 +55,9 @@ function createCinema(req, res) {
 }
 
 async function updateCinema(req, res) {
-  let result = await wrapper(Cinema.findOneAndUpdate({_id: req.params.id}, {film_info: req.body.film_info}, {new:true}));
+  let result = await wrapper(Cinema.findOneAndUpdate({_id: req.params.id}, {cinemaName: req.body.cinemaName, location: req.body.location}, {new:true}));
   if (result.error) {
-   result.message = "no such film exist";
+   result.message = "no such cinema exist";
    res.json(result); 
   }
   res.json(result);

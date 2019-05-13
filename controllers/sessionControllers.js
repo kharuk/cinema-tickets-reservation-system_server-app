@@ -76,6 +76,16 @@ async function deleteSession(req, res, next) {
   } 
 }
 
+async function updateSession(req, res, next) {
+  try {
+    const { id } = req.params;
+    let updatedSession =  await sessionServices.updateSession(id, req.body);
+    res.json(updatedSession)
+  } catch(err) {
+    next(err);
+  } 
+}
+
 
 
 
@@ -87,5 +97,6 @@ module.exports = {
   bookSelectedSeats,
   removeBooking,
   deleteAllSessions,
-  deleteSession
+  deleteSession,
+  updateSession
 };

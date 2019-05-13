@@ -19,7 +19,8 @@ const FilmSchema = new Schema({
       },
       duration: {
         type: Number,
-        required: true
+        required: true,
+        default: 90
       }
     },
     sessions: [{

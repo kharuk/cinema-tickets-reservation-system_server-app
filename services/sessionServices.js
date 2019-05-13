@@ -91,7 +91,6 @@ function updateFilmInfo(filmId, sessionId) {
 
 async function createSession(sessionInfo) {
   let cinema = await Cinema.findById({_id: sessionInfo.cinema});
-  console.log(cinema);
   const newSession = new Session();
   newSession.film = sessionInfo.film;
   newSession.seatsAvailable = cinema.seatsAvailable;
@@ -180,6 +179,23 @@ async function deleteSessionSeats(sessionSeats) {
   } 
 }
 
+async function updateSession(id, sessionInfo) {
+  let deletedSession = await deleteSession(id);
+  let createdSession = await createSession(sessionInfo);
+  return createdSession;
+  /* let result = await wrapper(Session.findOneAndUpdate({_id: id}, {
+    film: sessionInfo.film,
+	  cinema: sessionInfo.cinema,
+    date: sessionInfo.date,
+    session_info: sessionInfo.session_info
+  }, {new:true}));
+  if (result.error) {
+   result.message = "no such session exist";
+   return result; 
+  }
+  return result;  */
+}
+
 
 module.exports = {
   getAllSessions,
@@ -189,5 +205,6 @@ module.exports = {
   bookSelectedSeats,
   removeBooking,
   deleteAllSessions,
-  deleteSession
+  deleteSession,
+  updateSession
 };

@@ -54,7 +54,13 @@ function getFilm(req, res) {
 }
 
 function createFilm(req, res) {
-  Film.create(req.body, function (err, result) {
+  let film = {};
+  film.film_info = {
+    filmName: req.body.name,
+    description: req.body.description,
+    poster_path: req.body.imagePath
+  }
+  Film.create(film, function (err, result) {
     if (!err) {
       res.json({result, isSuccessfully: true});
       return;
