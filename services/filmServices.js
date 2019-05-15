@@ -1,5 +1,6 @@
 const Film = require('../models/filmModel');
 const sessionServices = require('./sessionServices');
+const {io} = require("../config/socket");
 
 const wrapper = promise => (
   promise
@@ -62,6 +63,7 @@ function createFilm(req, res) {
   }
   Film.create(film, function (err, result) {
     if (!err) {
+      io.emit('films updated');
       res.json({result, isSuccessfully: true});
       return;
     } else {
@@ -72,11 +74,19 @@ function createFilm(req, res) {
 }
 
 async function updateFilm(req, res) {
-   let result = await wrapper(Film.findOneAndUpdate({_id: req.params.id}, {film_info: req.body.film_info}, {new:true}));
+  let film = {};
+  film.film_info = {
+    filmName: req.body.name,
+    description: req.body.description,
+    poster_path: req.body.imagePath
+  }
+  console.log(film.film_info);
+   let result = await wrapper(Film.findOneAndUpdate({_id: req.params.id}, {film_info: film.film_info}, {new:true}));
    if (result.error) {
     result.message = "no such film exist";
     res.json(result); 
    }
+   io.emit('films updated'); 
   res.json(result);
 }
 
@@ -90,6 +100,7 @@ async function deleteFilm(id) {
     if (resArray.some((item) => item.isSuccessfully === false)){
       return({isSuccessfully: false})
     } else {
+      io.emit('films updated');
       return({isSuccessfully: true});
     }  
   } else {
