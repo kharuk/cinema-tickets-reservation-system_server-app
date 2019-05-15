@@ -59,7 +59,8 @@ function createFilm(req, res) {
   film.film_info = {
     filmName: req.body.name,
     description: req.body.description,
-    poster_path: req.body.imagePath
+    poster_path: req.body.imagePath,
+    duration: req.body.duration || 90
   }
   Film.create(film, function (err, result) {
     if (!err) {

@@ -4,6 +4,7 @@ const Film = require('../models/filmModel');
 const Cinema = require('../models/cinemaModel');
 const SessionSeat = require('../models/sessionSeatModel');
 const moment = require('moment');
+const {io} = require("../config/socket");
 
 const wrapper = promise => (
   promise
@@ -11,8 +12,13 @@ const wrapper = promise => (
     .catch(error => ({ error, result: null, isSuccessfully: false }))
 )
 
-function getAllSessions() {
-
+async function getAllSessions() {
+  let sessions = await Session.find({})
+  .populate({ path: 'film', select: 'film_info'})
+  .populate({
+    path: 'cinema',
+  });
+  return {sessions: sessions, isSuccessfully: true};
 }
 
 async function formatSessionSeats(session, user) {
@@ -100,10 +106,12 @@ async function createSession(sessionInfo) {
   let session = await Session.create(newSession);
   await updateFilmInfo(newSession.film, session._id);
   await createSessionSeats(cinema, session._id);
+  io.emit('sessions updated');
   return ({session: session, isSuccessfully: true});
 }
 
 async function updateSeatInfo (id, seatInfo, user) {
+  console.log(seatInfo);
   let updatedSeat = await SessionSeat.findOneAndUpdate({_id: id, booked: false, $or: [ { user_id: null}, { user_id: user._id }, {chosen: false} ] }, {chosen: !seatInfo.chosen, user_id: user._id, lastSelectionDatetime: new Date()}, {new:true});
   if(updatedSeat) {
     const timeoutObj = setTimeout(async(id) => {
@@ -154,6 +162,7 @@ async function deleteSession(id) {
   if (deletedSession.result && deletedSession.isSuccessfully) {
     let deletedSessionFromFilm =  await deleteSessionFromFilmModel(deletedSession.result.film, deletedSession.result._id);
     if (deletedSessionFromFilm.isSuccessfully) {
+      io.emit('sessions updated');
       return await deleteSessionSeats(deletedSession.result.sessionSeats);
     }
   } else {
@@ -182,6 +191,7 @@ async function deleteSessionSeats(sessionSeats) {
 async function updateSession(id, sessionInfo) {
   let deletedSession = await deleteSession(id);
   let createdSession = await createSession(sessionInfo);
+  io.emit('sessions updated');
   return createdSession;
   /* let result = await wrapper(Session.findOneAndUpdate({_id: id}, {
     film: sessionInfo.film,
