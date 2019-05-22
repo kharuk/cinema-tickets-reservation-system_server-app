@@ -19,5 +19,6 @@ const upload = multer({
 
 router.get('/images/:name', imagesControllers.get);
 router.post('/images', upload.single('FilmPoster'), imagesControllers.save);
+router.delete('/images/:name', imagesControllers.remove);
 
 module.exports = router;

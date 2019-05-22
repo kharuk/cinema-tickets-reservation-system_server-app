@@ -1,5 +1,6 @@
 const Film = require('../models/filmModel');
 const sessionServices = require('./sessionServices');
+const imageServices = require('./imagesService');
 const {io} = require("../config/socket");
 
 const wrapper = promise => (
@@ -91,9 +92,15 @@ async function updateFilm(req, res) {
   res.json(result);
 }
 
+function receiveNameOfPhoto(url) {
+  let parts = url.split("/");
+  return parts[parts.length - 1];
+}
+
 async function deleteFilm(id) {
   let deletedFilm = await wrapper(Film.findByIdAndDelete(id));
   if (deletedFilm.result && deletedFilm.isSuccessfully) {
+    let deletedPhoto = await imageServices.remove(receiveNameOfPhoto(deletedFilm.result.film_info.poster_path));
     let deletedSessions = deletedFilm.result.sessions.map(async (session) => {
       return await sessionServices.deleteSession(session);
     });
