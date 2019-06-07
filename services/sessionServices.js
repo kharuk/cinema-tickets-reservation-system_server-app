@@ -61,8 +61,8 @@ function createSessionSeatsInfo(cinema, sessionId) {
   return sessionSeats;
 }
 
-function createSessionSeats(cinema, sessisonId) {
-  const sessionSeats = createSessionSeatsInfo(cinema, sessisonId);
+async function createSessionSeats(cinema, sessisonId) {
+  const sessionSeats = await createSessionSeatsInfo(cinema, sessisonId);
   SessionSeat.create(sessionSeats, (err, result) => {
     if (!err) {
       Session.findOneAndUpdate({_id: result[0].session_id}, {sessionSeats: result}, {new:true})

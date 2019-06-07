@@ -3,6 +3,7 @@ const imagesServices = require('../services/imagesService');
 const save = async (req, res, next) => {
     try {
         const image = req.file;
+        console.log(image)
         const imagePath = imagesServices.save(image);
         console.log('imagePath', imagePath);
         res.send({ imagePath }); 
